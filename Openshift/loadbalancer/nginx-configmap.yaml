@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-gateway-config
+data:
+  nginx.conf: |
+    worker_processes auto;
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+        sendfile        on;
+        keepalive_timeout 65;
+
+        # Increase max body size for large payload/embeddings
+        client_max_body_size 50M;
+
+        # =========================================================
+        # 1. HTTP Server (Web UI + Triton REST API)
+        # =========================================================
+        server {
+            listen 8080;
+            server_name _;
+
+            # --- Web Application Subpath ---
+            location / {
+                proxy_pass http://triton-web-service:8080/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+            }
+
+            # --- Triton REST API Subpath ---
+            location /v2/ {
+                # Handle CORS Preflight (OPTIONS)
+                if ($request_method = 'OPTIONS') {
+                    add_header 'Access-Control-Allow-Origin' '*' always;
+                    add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+                    add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization,Inference-Header-Content-Length' always;
+                    add_header 'Access-Control-Max-Age' 1728000;
+                    add_header 'Content-Type' 'text/plain; charset=utf-8';
+                    add_header 'Content-Length' 0;
+                    return 204;
+                }
+
+                # Proxy to Triton HTTP service
+                proxy_pass http://triton-service:8000/v2/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_set_header X-Forwarded-Proto $scheme;
+
+                # Inject CORS headers into Triton responses
+                add_header 'Access-Control-Allow-Origin' '*' always;
+                add_header 'Access-Control-Allow-Methods' 'GET, POST, OPTIONS' always;
+                add_header 'Access-Control-Allow-Headers' 'Content-Type, Authorization, Inference-Header-Content-Length' always;
+            }
+        }
+
+        # =========================================================
+        # 2. gRPC Server (HTTP/2)
+        # =========================================================
+        server {
+            listen 8001 http2;
+            server_name _;
+
+            # Triton's default gRPC package endpoint
+            location /inference.GRPCInferenceService/ {
+                grpc_pass grpc://triton-service:8001;
+                grpc_set_header Host $host;
+                grpc_set_header X-Real-IP $remote_addr;
+            }
+        }
+    }

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton-web-frontend
+  labels:
+    app: triton-web-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: triton-web-frontend
+  template:
+    metadata:
+      labels:
+        app: triton-web-frontend
+    spec:
+      containers:
+      - name: web-server
+        image: registry.access.redhat.com/ubi9/nginx-122:latest
+        # Forces Nginx to run in foreground so PID 1 does not exit
+        command: ["/usr/sbin/nginx", "-g", "daemon off;"]
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          limits:
+            cpu: 4
+            memory: 128Mi
+          requests:
+            cpu: 1
+            memory: 128Mi
+        volumeMounts:
+        # Red Hat UBI Nginx document root
+        - name: web-content
+          mountPath: /opt/app-root/src
+        - name: web-content
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: web-content
+        configMap:
+          name: triton-web-files

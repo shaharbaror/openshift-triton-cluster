@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-gateway
+  labels:
+    app: nginx-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-gateway
+  template:
+    metadata:
+      labels:
+        app: nginx-gateway
+    spec:
+      containers:
+      - name: nginx
+        image: registry.access.redhat.com/ubi9/nginx-122:latest
+        command: ["/usr/sbin/nginx", "-g", "daemon off;"]
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8001
+          name: grpc
+        resources:
+          limits:
+            cpu: 4
+            memory: 256Mi
+          requests:
+            cpu: 1
+            memory: 256Mi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/nginx/nginx.conf
+          subPath: nginx.conf
+      volumes:
+      - name: config-volume
+        configMap:
+          name: nginx-gateway-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-gateway-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http
+  - port: 8001
+    targetPort: 8001
+    name: grpc
+  selector:
+    app: nginx-gateway

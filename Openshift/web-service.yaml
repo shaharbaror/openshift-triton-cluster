@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: triton-web-service
+  labels:
+    app: triton-web-frontend
+spec:
+  type: LoadBalancer
+  selector:
+    app: triton-web-frontend
+  ports:
+  - name: http
+    port: 8080        # External port exposed by the LoadBalancer
+    targetPort: 8080

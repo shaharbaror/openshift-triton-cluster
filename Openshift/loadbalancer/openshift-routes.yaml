@@ -1,0 +1,28 @@
+# HTTP Route (Web UI & REST API)
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nginx-gateway-http
+spec:
+  to:
+    kind: Service
+    name: nginx-gateway-service
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+---
+# gRPC Route
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: nginx-gateway-grpc
+spec:
+  to:
+    kind: Service
+    name: nginx-gateway-service
+  port:
+    targetPort: grpc
+  tls:
+    termination: passthrough
