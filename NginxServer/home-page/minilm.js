@@ -10,6 +10,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const jsonOutput = document.getElementById("json-output");
   const statusBar = document.getElementById("status-indicator");
 
+  // Load cluster base URL from localStorage if set
+  const savedBase = localStorage.getItem('tritonUrl');
+  if (savedBase) {
+    const cleanBase = savedBase.replace(/\/$/, "");
+    endpointInput.value = `${cleanBase}/v2/models/minilm_ensemble/infer`;
+  }
+
   btnCompare.addEventListener("click", async () => {
     const endpoint = endpointInput.value.trim();
     const textA = textAInput.value.trim();
@@ -27,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const startTime = performance.now();
 
     try {
-      // Send sequential requests for Text A and Text B to Triton HTTP v2 API
       const [embA, embB, rawResponse] = await Promise.all([
         getEmbedding(endpoint, textA),
         getEmbedding(endpoint, textB),
@@ -37,15 +43,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const endTime = performance.now();
       const latency = Math.round(endTime - startTime);
 
-      // Calculate Cosine Similarity between vectors
       const similarity = cosineSimilarity(embA, embB);
       
-      // Update UI
       scoreVal.textContent = `${(similarity * 100).toFixed(2)}%`;
       latencyVal.textContent = `Latency: ${latency} ms`;
       resultBox.classList.remove("hidden");
 
-      // Display sample raw response vector output
       jsonOutput.textContent = JSON.stringify(rawResponse, null, 2);
 
     } catch (err) {
@@ -56,7 +59,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Constructs Triton v2 HTTP payload for string input
   async function fetchRawResponse(endpoint, text) {
     const payload = {
       inputs: [
@@ -71,7 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const response = await fetch(endpoint, {
       method: "POST",
-      headers: { 'Content-Type': 'text/plain' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
@@ -85,11 +87,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function getEmbedding(endpoint, text) {
     const res = await fetchRawResponse(endpoint, text);
-    // Extract vector data from Triton output tensor format
     return res.outputs[0].data;
   }
 
-  // Cosine similarity for normalized vectors (dot product)
   function cosineSimilarity(vecA, vecB) {
     let dotProduct = 0.0;
     for (let i = 0; i < vecA.length; i++) {

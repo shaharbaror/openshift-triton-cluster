@@ -3,38 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Triton AI Hub - Model Catalog</title>
+  <title>Triton AI Hub - Menu</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <div class="app-container">
     <header class="app-header">
-      <h1>Triton Model Catalog</h1>
-      <p>Discover available inference models running on your OpenShift cluster</p>
+      <h1>Triton AI Hub</h1>
+      <p>Select an inference service endpoint to test</p>
     </header>
 
     <main class="main-content">
-      <!-- Connection Section -->
+      <!-- Cluster Gateway Configuration -->
       <section class="card">
-        <h2>Cluster Connection</h2>
+        <h2>Cluster Base Endpoint</h2>
         <div class="form-group row">
           <input 
             type="text" 
             id="routeUrl" 
-            placeholder="https://triton-route-namespace.apps.cluster.com" 
-            value="" 
+            value="https://nginx-gateway-http-trainee-playground-7.test.medone-1.med.one/" 
           />
-          <button class="btn-secondary" onclick="fetchAvailableModels()">Connect & Fetch</button>
         </div>
       </section>
 
-      <!-- Available Models Catalog -->
+      <!-- Static Menu Selection -->
       <section class="card">
         <h2>Available Models</h2>
-        <div id="catalogStatus" class="status-idle">
-          Enter your OpenShift Route URL above and click "Connect & Fetch" to discover models.
+        <div class="model-grid">
+          
+          <div class="model-card">
+            <div class="model-info">
+              <h3>Image Classifier Model</h3>
+              <p>Computer Vision (224x224 NCHW Tensor Input)</p>
+            </div>
+            <button class="btn-primary" onclick="launchApp('classifier.html?model=image_classifier')">
+              Open Image Classifier &rarr;
+            </button>
+          </div>
+
+          <div class="model-card">
+            <div class="model-info">
+              <h3>Semantic LLM Model</h3>
+              <p>Text Similarity Pipeline (all-MiniLM-L6-v2 Ensemble)</p>
+            </div>
+            <button class="btn-primary" onclick="launchApp('minilm.html')">
+              Open Semantic LLM &rarr;
+            </button>
+          </div>
+
         </div>
-        <div id="modelGrid" class="model-grid hidden"></div>
       </section>
     </main>
   </div>

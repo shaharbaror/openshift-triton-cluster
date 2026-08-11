@@ -150,6 +150,9 @@ button, .btn-back {
   padding: 0.8rem 1rem;
 }
 .prediction-header { display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem; }
+.prediction-header.rank-green { color: var(--success); }
+.prediction-header.rank-yellow { color: #facc15; }
+.prediction-header.rank-white { color: var(--text-main); }
 .prediction-score { color: var(--success); font-family: monospace; }
 
 .progress-bar-bg { background-color: var(--bg-color); height: 6px; border-radius: 3px; overflow: hidden; margin-top: 0.4rem; }
@@ -157,3 +160,6 @@ button, .btn-back {
 
 .status-idle { color: var(--text-muted); font-style: italic; text-align: center; padding: 1rem; }
 .hidden { display: none !important; }
+
+.rank-green { color: green; }
+.rank-yellow { color: #facc15; }

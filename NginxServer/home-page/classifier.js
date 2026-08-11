@@ -1,12 +1,12 @@
 const INPUT_TENSOR_NAME = "input";
 const OUTPUT_TENSOR_NAME = "output";
 const TARGET_SIZE = 224;
+const DEFAULT_BASE_URL = "https://nginx-gateway-http-trainee-playground-7.test.medone-1.med.one";
 
 let selectedModelName = "image_classifier";
-let tritonUrl = "";
+let tritonUrl = DEFAULT_BASE_URL;
 let selectedImageElement = null;
 
-// Initialize state from URL params and localStorage
 window.onload = () => {
   const urlParams = new URLSearchParams(window.location.search);
   const modelFromUrl = urlParams.get('model');
@@ -15,13 +15,8 @@ window.onload = () => {
     selectedModelName = modelFromUrl;
   }
   
-  tritonUrl = localStorage.getItem('tritonUrl') || "";
+  tritonUrl = (localStorage.getItem('tritonUrl') || DEFAULT_BASE_URL).replace(/\/$/, "");
   document.getElementById('activeModelBadge').innerText = `Model: ${selectedModelName}`;
-
-  if (!tritonUrl) {
-    alert("No Triton URL found. Please connect via the main menu first.");
-    window.location.href = "index.html";
-  }
 };
 
 // Drag and Drop & File Processing
@@ -63,7 +58,7 @@ function handleFile(file) {
   reader.readAsDataURL(file);
 }
 
-// Preprocessing: Resize image to 224x224 & convert to Float32 RGB NCHW Plane
+// Preprocessing: Resize image to 224x224 & convert to Float32 RGB NCHW
 function preprocessImage(img) {
   const canvas = document.createElement('canvas');
   canvas.width = TARGET_SIZE;
@@ -122,7 +117,7 @@ async function classifyImage() {
     const endpoint = `${tritonUrl}/v2/models/${selectedModelName}/infer`;
     const response = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
@@ -141,28 +136,26 @@ async function classifyImage() {
   }
 }
 
-// Display Top 5 Cards
+// Display Top 5 Rankings (1st through 5th, no percentages/scores)
 function displayPredictions(responseJson) {
   const resultsGrid = document.getElementById('resultsGrid');
   resultsGrid.innerHTML = "";
 
   const outputData = responseJson.outputs[0].data;
+  const rankLabels = ["1st", "2nd", "3rd", "4th", "5th"];
 
-  outputData.forEach((item) => {
+  outputData.slice(0, 5).forEach((item, index) => {
     const parts = item.split(':');
-    const score = parseFloat(parts[0]);
-    const certaintyPercent = (score * 100).toFixed(1);
     const label = parts.length > 2 ? parts.slice(2).join(':') : (parts[1] || 'Unknown');
+    const rankName = rankLabels[index] || `${index + 1}th`;
+    const colorClass = index === 0 ? 'rank-green' : index === 1 || index === 2 ? 'rank-yellow' : 'rank-white';
 
     const card = document.createElement('div');
     card.className = 'prediction-card';
     card.innerHTML = `
-      <div class="prediction-header">
+      <div class="prediction-header ${colorClass}">
+        <span class="prediction-rank">${rankName} Highest Rating:</span>
         <span class="prediction-label">${label}</span>
-        <span class="prediction-score">${certaintyPercent}%</span>
-      </div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width: ${certaintyPercent}%"></div>
       </div>
     `;
     resultsGrid.appendChild(card);

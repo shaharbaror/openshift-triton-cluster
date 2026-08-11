@@ -9,24 +9,13 @@
 <body>
   <div class="container">
     <header>
+      
+    </header>
+    <section class="card">
       <h1>Triton Embedding Explorer</h1>
       <p class="subtitle">Model: <code>all-MiniLM-L6-v2</code> Ensemble Endpoint</p>
-    </header>
-
-    <!-- Configuration Section -->
-    <section class="card">
-      <h2>1. Endpoint Configuration</h2>
-      <div class="input-group">
-        <label for="endpoint-url">Triton HTTP Endpoint URL</label>
-        <input 
-          type="text" 
-          id="endpoint-url" 
-          placeholder="http://<triton-route-url>/v2/models/minilm_ensemble/infer"
-          value="http://localhost:8000/v2/models/minilm_ensemble/infer" 
-        />
-      </div>
+      <a href="index.html" class="btn secondary">Back to Home</a>
     </section>
-
     <!-- Cosine Similarity Tester Section -->
     <section class="card">
       <h2>2. Semantic Similarity Tester</h2>
