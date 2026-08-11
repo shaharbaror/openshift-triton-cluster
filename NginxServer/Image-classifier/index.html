@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Classifier - Triton Inference</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>AI Image Classifier</h1>
+      <p>Powered by NVIDIA Triton & OpenShift</p>
+    </header>
+
+    <main class="main-content">
+      <!-- Configuration Section -->
+      <section class="card config-card">
+        <h2>Connection Settings</h2>
+        <div class="form-group">
+          <label for="routeUrl">Triton Endpoint URL (HTTPS)</label>
+          <input 
+            type="text" 
+            id="routeUrl" 
+            placeholder="https://triton-route-namespace.apps.cluster.com" 
+            value="" 
+          />
+        </div>
+      </section>
+
+      <!-- Upload Section -->
+      <section class="card upload-card">
+        <h2>Upload Image</h2>
+        <div class="drop-zone" id="dropZone">
+          <input type="file" id="fileInput" accept="image/*" />
+          <div class="drop-zone-prompt">
+            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <p>Drag & drop an image here or <span>browse</span></p>
+            <small>Supports JPG, PNG, WEBP (Auto-resized to 224x224)</small>
+          </div>
+        </div>
+
+        <!-- Image Preview & Action -->
+        <div class="preview-container hidden" id="previewContainer">
+          <div class="image-wrapper">
+            <img id="imagePreview" alt="Upload Preview" />
+          </div>
+          <button id="classifyBtn" class="btn-primary" onclick="classifyImage()">
+            Classify Image
+          </button>
+        </div>
+      </section>
+
+      <!-- Prediction Results Section -->
+      <section class="card results-card">
+        <h2>Top 5 Predictions</h2>
+        <div id="statusMessage" class="status-idle">
+          Upload an image and click "Classify Image" to view results.
+        </div>
+        <div id="resultsGrid" class="results-grid"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

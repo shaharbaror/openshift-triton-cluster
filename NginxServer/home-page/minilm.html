@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Triton MiniLM Embedding Tester</title>
+  <link rel="stylesheet" href="minilm.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Triton Embedding Explorer</h1>
+      <p class="subtitle">Model: <code>all-MiniLM-L6-v2</code> Ensemble Endpoint</p>
+    </header>
+
+    <!-- Configuration Section -->
+    <section class="card">
+      <h2>1. Endpoint Configuration</h2>
+      <div class="input-group">
+        <label for="endpoint-url">Triton HTTP Endpoint URL</label>
+        <input 
+          type="text" 
+          id="endpoint-url" 
+          placeholder="http://<triton-route-url>/v2/models/minilm_ensemble/infer"
+          value="http://localhost:8000/v2/models/minilm_ensemble/infer" 
+        />
+      </div>
+    </section>
+
+    <!-- Cosine Similarity Tester Section -->
+    <section class="card">
+      <h2>2. Semantic Similarity Tester</h2>
+      <div class="grid-2">
+        <div class="input-group">
+          <label for="text-a">Sentence A</label>
+          <textarea id="text-a" rows="3">The quick brown fox jumps over the lazy dog.</textarea>
+        </div>
+        <div class="input-group">
+          <label for="text-b">Sentence B</label>
+          <textarea id="text-b" rows="3">A fast dark fox leaps across a sleepy canine.</textarea>
+        </div>
+      </div>
+      
+      <button id="btn-compare" class="btn primary">Compare Sentences & Calculate Similarity</button>
+
+      <div id="similarity-result" class="result-box hidden">
+        <div class="metric">
+          <span class="metric-label">Cosine Similarity:</span>
+          <span id="score-val" class="metric-value">0.00%</span>
+        </div>
+        <div class="latency">
+          <span id="latency-val">0 ms</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Raw Output Preview Section -->
+    <section class="card">
+      <h2>3. Raw Embedding Vector Output</h2>
+      <div id="status-indicator" class="status-bar hidden"></div>
+      <div class="code-container">
+        <pre><code id="json-output">// Run a request above to inspect raw 384-dim tensor output...</code></pre>
+      </div>
+    </section>
+  </div>
+
+  <script src="minilm.js"></script>
+</body>
+</html>

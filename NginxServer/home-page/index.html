@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Triton AI Hub - Model Catalog</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <h1>Triton Model Catalog</h1>
+      <p>Discover available inference models running on your OpenShift cluster</p>
+    </header>
+
+    <main class="main-content">
+      <!-- Connection Section -->
+      <section class="card">
+        <h2>Cluster Connection</h2>
+        <div class="form-group row">
+          <input 
+            type="text" 
+            id="routeUrl" 
+            placeholder="https://triton-route-namespace.apps.cluster.com" 
+            value="" 
+          />
+          <button class="btn-secondary" onclick="fetchAvailableModels()">Connect & Fetch</button>
+        </div>
+      </section>
+
+      <!-- Available Models Catalog -->
+      <section class="card">
+        <h2>Available Models</h2>
+        <div id="catalogStatus" class="status-idle">
+          Enter your OpenShift Route URL above and click "Connect & Fetch" to discover models.
+        </div>
+        <div id="modelGrid" class="model-grid hidden"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="menu.js"></script>
+</body>
+</html>
