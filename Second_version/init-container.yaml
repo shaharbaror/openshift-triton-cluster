@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: triton-inference-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: triton-server
+  template:
+    metadata:
+      labels:
+        app: triton-server
+    spec:
+      # 1. Init container automatically populates storage on startup
+      initContainers:
+      - name: model-populator
+        image: quay.io/your-user/triton-models:v1 # Your image containing model files
+        command: ["/bin/sh", "-c", "cp -rn /models/* /target/"]
+        volumeMounts:
+        - name: model-volume
+          mountPath: /target
+
+      # 2. Triton server reads the pre-populated volume
+      containers:
+      - name: triton-server
+        image: nvcr.io/nvidia/tritonserver:23.10-py3
+        command: ["tritonserver", "--model-repository=/models"]
+        ports:
+        - containerPort: 8000
+          name: http
+        volumeMounts:
+        - name: model-volume
+          mountPath: /models
+          readOnly: true
+
+      volumes:
+      - name: model-volume
+        persistentVolumeClaim:
+          claimName: triton-model-pvc # RWO Filesystem PVC

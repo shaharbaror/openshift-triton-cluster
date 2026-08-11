@@ -1,0 +1,50 @@
+# apiVersion: route.openshift.io/v1
+# kind: Route
+# metadata:
+#   name: triton-route
+#   annotations:
+#     router.openshift.io/sticky_session_force: "true"
+#     haproxy.router.openshift.io/response-headers: "Access-Control-Allow-Origin: *|Access-Control-Allow-Methods: GET, POST, OPTIONS|Access-Control-Allow-Headers: *"
+# spec:
+#   to:
+#     kind: Service
+#     name: triton-service
+#   port:
+#     targetPort: http
+#   tls:
+#     termination: edge
+#     insecureEdgeTerminationPolicy: Redirect
+
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: triton-route
+  annotations:
+    router.openshift.io/sticky_session_force: "true"
+spec:
+  to:
+    kind: Service
+    name: triton-service
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  httpHeaders:
+    actions:
+      response:
+        - name: Access-Control-Allow-Origin
+          action:
+            type: Set
+            set:
+              value: "*"
+        - name: Access-Control-Allow-Methods
+          action:
+            type: Set
+            set:
+              value: "GET, POST, OPTIONS"
+        - name: Access-Control-Allow-Headers
+          action:
+            type: Set
+            set:
+              value: "Content-Type, Accept, Authorization"

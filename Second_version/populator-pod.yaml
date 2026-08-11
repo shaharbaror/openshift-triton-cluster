@@ -1,0 +1,47 @@
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: triton-populator
+# spec:
+#   containers:
+#   - name: populator
+#     image: quay.io/centos/centos:stream8
+#     command: ["/bin/sh", "-c", "sleep infinity"]
+#     volumeDevices:
+#     - name: model-block-vol
+#       devicePath: /dev/triton-block
+#     resources:
+#       limits:
+#         memory: 1Gi
+#         cpu: 8
+#       requests:
+#         memory: 1Gi
+#         cpu: 2 
+#   volumes:
+#   - name: model-block-vol
+#     persistentVolumeClaim:
+#       claimName: triton-model-pvc
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: triton-populator
+spec:
+  containers:
+  - name: populator
+    image: registry.access.redhat.com/ubi8/ubi:latest
+    command: ["/bin/sh", "-c", "sleep infinity"]
+    volumeMounts:
+    - name: model-store
+      mountPath: /models
+    resources:
+      limits:
+        memory: 1Gi
+        cpu: 8
+      requests:
+        memory: 1Gi
+        cpu: 2 
+  volumes:
+  - name: model-store
+    persistentVolumeClaim:
+      claimName: triton-model-pvc # Your RWX Filesystem PVC name
