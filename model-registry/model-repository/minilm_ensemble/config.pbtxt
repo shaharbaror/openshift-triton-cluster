@@ -1,0 +1,54 @@
+name: "minilm_ensemble"
+platform: "ensemble"
+max_batch_size: 16
+
+input [
+  {
+    name: "TEXT"
+    data_type: TYPE_STRING
+    dims: [ 1 ]
+  }
+]
+output [
+  {
+    name: "EMBEDDINGS"
+    data_type: TYPE_FP32
+    dims: [ 384 ]
+  }
+]
+
+
+ensemble_scheduling {
+  step [
+    {
+      model_name: "tokenizer"
+      model_version: -1
+      input_map { key: "TEXT" value: "TEXT" }
+      output_map { key: "input_ids" value: "input_ids" }
+      output_map { key: "attention_mask" value: "attention_mask" }
+      output_map {
+        key: "token_type_ids"
+        value: "token_type_ids"
+      }
+    },
+    {
+      model_name: "minilm_onnx"
+      model_version: -1
+      input_map { key: "input_ids" value: "input_ids" }
+      input_map { key: "attention_mask" value: "attention_mask" }
+      input_map {
+        key: "token_type_ids"
+        value: "token_type_ids"
+      }
+      output_map { key: "last_hidden_state" value: "last_hidden_state" }
+    },
+    {
+      model_name: "postprocessing"
+      model_version: -1
+      input_map { key: "last_hidden_state" value: "last_hidden_state" }
+      input_map { key: "attention_mask" value: "attention_mask" }
+      output_map { key: "embeddings" value: "EMBEDDINGS" }
+    }
+  ]
+}
+
