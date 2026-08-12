@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
   const btnCompare = document.getElementById("btn-compare");
-  const endpointInput = document.getElementById("endpoint-url");
   const textAInput = document.getElementById("text-a");
   const textBInput = document.getElementById("text-b");
   
@@ -10,19 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const jsonOutput = document.getElementById("json-output");
   const statusBar = document.getElementById("status-indicator");
 
-  // Load cluster base URL from localStorage if set
-  const savedBase = localStorage.getItem('tritonUrl');
-  if (savedBase) {
-    const cleanBase = savedBase.replace(/\/$/, "");
-    endpointInput.value = `${cleanBase}/v2/models/minilm_ensemble/infer`;
-  }
-
   btnCompare.addEventListener("click", async () => {
-    const endpoint = endpointInput.value.trim();
     const textA = textAInput.value.trim();
     const textB = textBInput.value.trim();
 
-    if (!endpoint || !textA || !textB) {
+    if (!textA || !textB) {
       showError("Please fill out all fields.");
       return;
     }
@@ -35,9 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     try {
       const [embA, embB, rawResponse] = await Promise.all([
-        getEmbedding(endpoint, textA),
-        getEmbedding(endpoint, textB),
-        fetchRawResponse(endpoint, textA)
+        getEmbedding(textA),
+        getEmbedding(textB),
+        fetchRawResponse(textA)
       ]);
 
       const endTime = performance.now();
@@ -59,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  async function fetchRawResponse(endpoint, text) {
+  async function fetchRawResponse(text) {
     const payload = {
       inputs: [
         {
@@ -71,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ]
     };
 
-    const response = await fetch(endpoint, {
+    const response = await fetch("https://nginx-gateway-http-trainee-playground-7.test.medone-1.med.one/v2/models/minilm_ensemble/infer", {
       method: "POST",
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -85,8 +76,8 @@ document.addEventListener("DOMContentLoaded", () => {
     return await response.json();
   }
 
-  async function getEmbedding(endpoint, text) {
-    const res = await fetchRawResponse(endpoint, text);
+  async function getEmbedding(text) {
+    const res = await fetchRawResponse(text);
     return res.outputs[0].data;
   }
 
